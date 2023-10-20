@@ -12,3 +12,13 @@ app->provider->filament->adminPanelprovider
 5.  to change the favicon chain the method inside adminpanelprovider and pass the path of favicon
 
 6. to change the darkmode chain the method darkmode inside provider file
+
+**filament Resources**
+
+1.  Resources are static classes that are used to build CRUD interfaces for your Eloquent models. They describe how administrators should be able to interact with data from your app - using tables and forms
+
+2.  Form method in ResourceClass used to create or edit the resource i.e Product model
+
+3.  Table method in ResourceClass used to view the data inside the table
+
+4.  Resource modifiers are used to modify the data in term of more usefull conditions like required etc
