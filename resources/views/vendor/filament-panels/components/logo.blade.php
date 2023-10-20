@@ -1,0 +1,1 @@
+<img src="{{asset('images/logo.png')}}" alt="Filament-Example" class="h-8">

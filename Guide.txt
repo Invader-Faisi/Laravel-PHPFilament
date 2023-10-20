@@ -1,0 +1,14 @@
+**Customizing the admin dashboard:**
+
+app->provider->filament->adminPanelprovider
+1.  change id and path function to change the default endpoints.
+
+2.  change colors array to change the colors. from colors class or with your custome colors.
+
+3.  to change the default font chain the method font and pass value to it 
+
+4.  to change the default logo create vendor/filament-panels/components/logo.blade.php file inside views folder and add your logo inside it.
+
+5.  to change the favicon chain the method inside adminpanelprovider and pass the path of favicon
+
+6. to change the darkmode chain the method darkmode inside provider file
