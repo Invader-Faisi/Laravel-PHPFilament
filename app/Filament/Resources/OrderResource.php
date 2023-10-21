@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OrderResource extends Resource
@@ -25,6 +26,31 @@ class OrderResource extends Resource
     protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationGroup = 'Shop';
+
+    protected static ?string $recordTitleAttribute = 'number';
+
+    protected static ?int $globalSearchResultLimit = 20;
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['number', 'status'];
+    }
+
+    // global search details with relationship
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Name' => $record->customer->name,
+        ];
+    }
+
+    // this is for performance improvement it uses eager loading instead of lazy loading
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with([
+            'customer'
+        ]);
+    }
 
     public static function form(Form $form): Form
     {
@@ -44,13 +70,15 @@ class OrderResource extends Resource
                                 ->searchable()
                                 ->required(),
 
-                            Forms\Components\Select::make('type')
+                            Forms\Components\Select::make('status')
                                 ->options([
                                     'pending' => OrderStatusEnum::PENDING->value,
                                     'processing' => OrderStatusEnum::PROCESSING->value,
                                     'completed' => OrderStatusEnum::COMPLETED->value,
                                     'declined' => OrderStatusEnum::DECLINED->value,
-                                ])->columnSpanFull()->required(),
+                                ])
+                                ->columnSpanFull()
+                                ->required(),
 
                             Forms\Components\MarkdownEditor::make('notes')
                                 ->columnSpanFull()
@@ -65,17 +93,20 @@ class OrderResource extends Resource
                                 ->schema([
                                     Forms\Components\Select::make('product_id')
                                         ->label('Product')
-                                        ->options(Product::query()->pluck('name', 'id')),
+                                        ->reactive()
+                                        ->options(Product::query()->pluck('name', 'id'))
+                                        ->afterStateUpdated(fn ($state, Forms\Set $set) => $set('unit_price', Product::find($state)?->price ?? 0)),
                                     Forms\Components\TextInput::make('quantity')
                                         ->numeric()
                                         ->default(1)
                                         ->required(),
                                     Forms\Components\TextInput::make('unit_price')
                                         ->label('Unit Price')
+                                        ->disabled()
                                         ->dehydrated()
                                         ->numeric()
-                                        ->disabled()
-                                        ->required()
+                                        ->required(),
+
                                 ])->columns(3)
                         ])
                 ])->columnSpanFull()
@@ -100,7 +131,8 @@ class OrderResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->summarize([
-                        Sum::make()->money()
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money(),
                     ]),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Order Date')

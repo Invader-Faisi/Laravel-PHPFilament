@@ -13,6 +13,7 @@ app->provider->filament->adminPanelprovider
 
 6. to change the darkmode chain the method darkmode inside provider file
 
+7.  globalSearchKeyBindings(['command+k', 'ctrl+k']) for defining shortcut keys
 **filament Resources**
 
 1.  Resources are static classes that are used to build CRUD interfaces for your Eloquent models. They describe how administrators should be able to interact with data from your app - using tables and forms
