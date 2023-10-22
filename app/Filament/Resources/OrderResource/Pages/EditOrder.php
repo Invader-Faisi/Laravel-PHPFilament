@@ -21,11 +21,9 @@ class EditOrder extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $record->update($data);
-        $order = $this->record;
-        if ($order) {
-            $totalPrice = $order->items()->sum(DB::raw('quantity * unit_price'));
-            $order->update(['total_price' => $totalPrice]);
+        if ($this->record) {
+            $data['total_price'] = $this->record->items()->sum(DB::raw('quantity * unit_price'));
+            $record->update($data);
         }
 
         return $record;

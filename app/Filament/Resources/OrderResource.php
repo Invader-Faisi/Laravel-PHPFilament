@@ -83,6 +83,12 @@ class OrderResource extends Resource
                                 ->searchable()
                                 ->required(),
 
+                            Forms\Components\TextInput::make('shipping_price')
+                                ->label('Shipping Cost')
+                                ->dehydrated()
+                                ->numeric()
+                                ->required(),
+
                             Forms\Components\Select::make('status')
                                 ->options([
                                     'pending' => OrderStatusEnum::PENDING->value,
@@ -90,7 +96,6 @@ class OrderResource extends Resource
                                     'completed' => OrderStatusEnum::COMPLETED->value,
                                     'declined' => OrderStatusEnum::DECLINED->value,
                                 ])
-                                ->columnSpanFull()
                                 ->required(),
 
                             Forms\Components\MarkdownEditor::make('notes')
@@ -138,6 +143,9 @@ class OrderResource extends Resource
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('shipping_price')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_price')

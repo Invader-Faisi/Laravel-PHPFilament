@@ -1,72 +1,24 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\CategoryResource\RelationManagers;
 
-use App\Enums\ProductTypeEnum;
-use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
-use App\Models\Product;
+use App\Filament\Resources\ProductResource;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\ProductTypeEnum;
+use App\Models\Product;
 use Illuminate\Support\Str;
 
-class ProductResource extends Resource
+class ProductsRelationManager extends RelationManager
 {
-    protected static ?string $model = Product::class;
+    protected static string $relationship = 'products';
 
-    protected static ?string $navigationIcon = 'heroicon-o-bolt';
-
-    protected static ?string $navigationLabel = 'Products';
-
-    protected static ?string $navigationGroup = 'Shop';
-
-    protected static ?int $navigationSort = 0;
-
-    protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $globalSearchResultLimit = 20;
-
-    protected static ?string $activeNavigationIcon = 'heroicon-o-check-badge';
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
-
-    public static function getGloballySearchableAttributes(): array
-    {
-        return ['name', 'slug', 'description'];
-    }
-
-    // global search details with relationship
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            'Brand' => $record->brand->name,
-        ];
-    }
-
-    // this is for performance improvement it uses eager loading instead of lazy loading
-    public static function getGlobalSearchEloquentQuery(): Builder
-    {
-        return parent::getGlobalSearchEloquentQuery()->with([
-            'brand'
-        ]);
-    }
-
-
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -129,10 +81,6 @@ class ProductResource extends Resource
                                 Forms\Components\Select::make('brand_id')
                                     ->relationship('brand', 'name')
                                     ->required(),
-                                Forms\Components\Select::make('categories')
-                                    ->relationship('categories', 'name')
-                                    ->multiple()
-                                    ->required(),
 
                                 Forms\Components\FileUpload::make('image')
                                     ->directory('form-attachments')
@@ -146,9 +94,10 @@ class ProductResource extends Resource
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\ImageColumn::make('image'),
                 Tables\Columns\TextColumn::make('name')
@@ -176,18 +125,13 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('type'),
             ])
             ->filters([
-                TernaryFilter::make('is_visible')
-                    ->label('Visibility')
-                    ->boolean()
-                    ->trueLabel('Only Visible Products')
-                    ->falseLabel('Only Hidden Products')
-                    ->native(false),
-                SelectFilter::make('brand')
-                    ->relationship('brand', 'name')
+                //
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make(),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
                 ])
@@ -197,21 +141,5 @@ class ProductResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
-        ];
     }
 }
