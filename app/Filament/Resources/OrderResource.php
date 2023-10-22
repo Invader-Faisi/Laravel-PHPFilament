@@ -31,6 +31,19 @@ class OrderResource extends Resource
 
     protected static ?int $globalSearchResultLimit = 20;
 
+    protected static ?string $activeNavigationIcon = 'heroicon-o-check-badge';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', '=', 'processing')->count();
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return static::getModel()::where('status', '=', 'processing')->count() > 5
+            ? 'warning' : 'primary';
+    }
+
     public static function getGloballySearchableAttributes(): array
     {
         return ['number', 'status'];

@@ -5,6 +5,8 @@ namespace App\Providers\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -31,6 +33,22 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
             ])
             ->globalSearchKeyBindings(['command+g', 'ctrl+g'])
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationItems([
+                NavigationItem::make('Blog')
+                    ->url('https://www.google.com', shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-pencil-square')
+                    ->group('Externals')
+                    ->sort(2)
+                // ->hidden(fn (): bool => auth()->user()->can('view'))
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Settings')
+                    ->url('')
+                    ->icon('heroicon-o-cog-6-tooth')
+
+            ])
             ->font('Poppins')
             ->favicon('images/favicon.png')
             ->darkMode(false)
